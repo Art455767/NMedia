@@ -45,7 +45,7 @@ class PostService(private val repository: PostRepository) {
             repository.save(postEntity).toDto()
         } else {
             postEntity.content = dto.content
-            repository.save(postEntity) // Сохраняем изменения
+            repository.save(postEntity)
             postEntity.toDto()
         }
     }
@@ -58,8 +58,8 @@ class PostService(private val repository: PostRepository) {
         val postEntity = repository.findById(id).orElseThrow { NotFoundException(id) }
         postEntity.likes += 1
         postEntity.likedByMe = true
-        repository.save(postEntity) // Сохраняем изменения
-        return postEntity.toDto() // Возвращаем DTO
+        repository.save(postEntity)
+        return postEntity.toDto()
     }
 
     fun unlikeById(id: Long): Post {
@@ -68,28 +68,28 @@ class PostService(private val repository: PostRepository) {
             postEntity.likes -= 1
         }
         postEntity.likedByMe = false
-        repository.save(postEntity) // Сохраняем изменения
-        return postEntity.toDto() // Возвращаем DTO
+        repository.save(postEntity)
+        return postEntity.toDto()
     }
 
     fun slowOperation(): CompletableFuture<List<Post>> {
         val future = CompletableFuture<List<Post>>()
         val request = Request.Builder()
-            .url("http://localhost:8080/api/posts") // Замените на ваш URL
+            .url("http://localhost:8080/api/posts")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: okhttp3.Call, e: IOException) {
-                future.completeExceptionally(e) // Завершение с ошибкой
+                future.completeExceptionally(e)
             }
 
             override fun onResponse(call: okhttp3.Call, response: Response) {
                 if (response.isSuccessful) {
-                    // Обработка успешного ответа
-                    val posts = getAll() // Получите все посты из базы данных
+
+                    val posts = getAll()
                     future.complete(posts)
                 } else {
-                    future.complete(emptyList()) // Возвращаем пустой список в случае неуспешного ответа
+                    future.complete(emptyList())
                 }
             }
         })
