@@ -11,7 +11,19 @@ import java.time.OffsetDateTime
 
 @Service
 @Transactional
-class CommentService(private val repository: CommentRepository) {
+class CommentService(private val repository: CommentRepository,
+                     private val authorService: AuthorService)
+{
+    fun getAllByPostIdWithAuthors(postId: Long): List<Comment> {
+    val comments = repository.findAllByPostId(postId, Sort.by(Sort.Direction.ASC, "id"))
+        .map { it.toDto() }
+
+    return comments.map { comment ->
+        val author = authorService.getAuthorById(comment.author)
+        comment.copy(author = author?.name ?: "Неизвестный автор", authorAvatar = author?.avatar ?: "")
+    }
+}
+
     fun getAllByPostId(postId: Long): List<Comment> = repository
         .findAllByPostId(postId, Sort.by(Sort.Direction.ASC, "id"))
         .map { it.toDto() }

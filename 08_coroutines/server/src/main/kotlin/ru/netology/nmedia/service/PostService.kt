@@ -15,7 +15,18 @@ import java.time.OffsetDateTime
 class PostService(
     private val repository: PostRepository,
     private val commentService: CommentService,
+    private val authorService: AuthorService
 ) {
+    fun getAllWithAuthors(): List<Post> {
+        val posts = repository.findAll(Sort.by(Sort.Direction.DESC, "id"))
+            .map { it.toDto() }
+
+        return posts.map { post ->
+            val author = authorService.getAuthorById(post.author)
+            post.copy(author = author?.name ?: "Неизвестный автор", authorAvatar = author?.avatar ?: "")
+        }
+    }
+
     fun getAll(): List<Post> = repository
         .findAll(Sort.by(Sort.Direction.DESC, "id"))
         .map { it.toDto() }
