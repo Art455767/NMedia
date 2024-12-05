@@ -3,6 +3,7 @@ package ru.netology.nmedia.controller
 import org.springframework.web.bind.annotation.*
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.service.PostService
+import java.util.concurrent.CompletableFuture
 
 @RestController
 @RequestMapping("/api/posts", "/api/slow/posts")
@@ -24,4 +25,9 @@ class PostController(private val service: PostService) {
 
     @DeleteMapping("/{id}/likes")
     fun unlikeById(@PathVariable id: Long) = service.unlikeById(id)
+
+    @GetMapping("/slow")
+    fun slowOperation(): CompletableFuture<List<Post>> {
+        return service.slowOperation()
+    }
 }
